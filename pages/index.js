@@ -5,35 +5,17 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import Card from '@material-ui/core/Card'
-import CardActionArea from '@material-ui/core/CardActionArea'
-import CardContent from '@material-ui/core/CardContent'
-import CardMedia from '@material-ui/core/CardMedia'
-import Hidden from '@material-ui/core/Hidden'
-import Link from '@material-ui/core/Link'
 import Container from '@material-ui/core/Container'
 import Button from '@material-ui/core/Button';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-    createData('CMB', 159, 6.0, ),
-    createData('UATOM', 237, 9.0, ),
-    createData('IBC/jfasldadfasdfasd', 262, 16.0, ),
-];
-
-
 const {SigningCosmosClient} = require("@cosmjs/launchpad");
-import Box from '@material-ui/core/Box';
 
+
+
+
+import Box from '@material-ui/core/Box';
+import BankTotal from "../src/BankTotal/BankTotal";
+import PoolState from "../src/PoolState";
+//
 const useStyles = makeStyles(theme => ({
     toolbar: {
         borderBottom: `1px solid ${theme.palette.divider}`
@@ -97,19 +79,19 @@ const Index = () => {
 
                     await window.keplr.experimentalSuggestChain({
                         // Chain-id of the Cosmos SDK chain.
-                        chainId: "cosmoshub-3",
+                        chainId: "enf1",
                         // The name of the chain to be displayed to the user.
-                        chainName: "Cosmos",
+                        chainName: "Enflow",
                         // RPC endpoint of the chain.
-                        rpc: "https://node-cosmoshub-3.keplr.app/rpc",
+                        rpc: "http://0.0.0.0:26657",
                         // REST endpoint of the chain.
-                        rest: "https://node-cosmoshub-3.keplr.app/rest",
+                        rest: "http://0.0.0.0:1317",
                         // Staking coin information
                         stakeCurrency: {
                             // Coin denomination to be displayed to the user.
-                            coinDenom: "ATOM",
+                            coinDenom: "CMB",
                             // Actual denom (i.e. uatom, uscrt) used by the blockchain.
-                            coinMinimalDenom: "uatom",
+                            coinMinimalDenom: "cmb",
                             // # of decimal points to convert minimal denomination to user-facing denomination.
                             coinDecimals: 6,
                             // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
@@ -132,9 +114,9 @@ const Index = () => {
                         // List of all coin/tokens used in this chain.
                         currencies: [{
                             // Coin denomination to be displayed to the user.
-                            coinDenom: "ATOM",
+                            coinDenom: "CMB",
                             // Actual denom (i.e. uatom, uscrt) used by the blockchain.
-                            coinMinimalDenom: "uatom",
+                            coinMinimalDenom: "cmb",
                             // # of decimal points to convert minimal denomination to user-facing denomination.
                             coinDecimals: 6,
                             // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
@@ -143,8 +125,8 @@ const Index = () => {
                         }],
                         // List of coin/tokens used as a fee token in this chain.
                         feeCurrencies: [{
-                            coinDenom: "ATOM",
-                            coinMinimalDenom: "uatom",
+                            coinDenom: "CMB",
+                            coinMinimalDenom: "cmb",
                             coinDecimals: 6,
                         }],
 
@@ -156,20 +138,26 @@ const Index = () => {
                         }
                     });
 
-                    const chainId = "cosmoshub-3";
+                    const chainId = "enf1";
                     await window.keplr.enable(chainId);
                     const offlineSigner = window.getOfflineSigner(chainId);
                     const accounts = await offlineSigner.getAccounts();
                     console.log(accounts)
                     const cosmJS = new SigningCosmosClient(
-                        "https://node-cosmoshub-3.keplr.app/rest",
+                        "http://0.0.0.0:1317",
                         accounts[0].address,
                         offlineSigner,
                     );
 
+
+                    const result = await cosmJS.sendTokens("cosmos1c297nt22qwtceatd0mts4uxqftchpcez649nr0", [{
+                        denom: "cmb",
+                        amount: "10",
+                    }]);
+
                     setAddress(accounts[0].address);
 
-                } catch (err) {
+                } catch (err) {////
                     alert("Failed to suggest the chain");
                     console.log(err)
                 }
@@ -198,75 +186,15 @@ const Index = () => {
             </Toolbar>
 
             <Grid container>
-                <Grid item md={6}>
+                <Grid item md={12}>
                     <div className={classes.mainFeaturedPostContent}>
-                        <Paper elevation={10}>
-                            <Box padding={2}>
-                                <Typography variant="h4" color="inherit" gutterBottom>
-                                    Bank Total
-                                </Typography>
-
-                                <TableContainer component={Paper}>
-                                    <Table className={classes.table} aria-label="simple table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Denom</TableCell>
-                                                <TableCell align="right">Readable</TableCell>
-                                                <TableCell align="right">Amount</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {rows.map((row) => (
-                                                <TableRow key={row.name}>
-                                                    <TableCell component="th" scope="row">
-                                                        {row.name}
-                                                    </TableCell>
-                                                    <TableCell align="right">{row.calories}</TableCell>
-                                                    <TableCell align="right">{row.fat}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-
-                            </Box>
-                        </Paper>
+                        <BankTotal/>
                     </div>
                 </Grid>
 
-                <Grid item md={6}>
+                <Grid item md={12}>
                     <div className={classes.mainFeaturedPostContent}>
-                        <Paper elevation={10}>
-                            <Box padding={2}>
-                                <Typography variant="h4" color="inherit" gutterBottom>
-                                    Pool State
-                                </Typography>
-
-                                <TableContainer component={Paper}>
-                                    <Table className={classes.table} aria-label="simple table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Denom</TableCell>
-                                                <TableCell align="right">Readable</TableCell>
-                                                <TableCell align="right">Amount</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {rows.map((row) => (
-                                                <TableRow key={row.name}>
-                                                    <TableCell component="th" scope="row">
-                                                        {row.name}
-                                                    </TableCell>
-                                                    <TableCell align="right">{row.calories}</TableCell>
-                                                    <TableCell align="right">{row.fat}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-
-                            </Box>
-                        </Paper>
+                        <PoolState/>
                     </div>
                 </Grid>
 
